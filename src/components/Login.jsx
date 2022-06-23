@@ -1,18 +1,26 @@
 import React, { useState } from 'react'
 import {useNavigate,Link} from 'react-router-dom'
+import swal from 'sweetalert'
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 export default function Login() {
-	const [email, setemail] = useState()
-	const [password, setpassword] = useState()
-	const Navigate = useNavigate()
-	const handleLogin = (e)=>{
-		e.preventDefault()
+	const formik = useFormik({
+		initialValues: {
+		  email: "",
+		  password: ""
+		},
+		validationSchema: yup.object({
+		  email: yup.string().required("enter your email").email("plse eneter valid email"),
+		  password: yup.string().required("plz eneter your password"),
+		}),
+		onSubmit: (values, {resetForm}) => {
+		console.log(values);
 		const userInfo = JSON.parse(localStorage.getItem("userData"))
-		if(userInfo.email == email && userInfo.password==password){
-			Navigate("/home")
-		}else{
-			console.log("Please Enter Correct Password");
-		}
-	}
+		userInfo.email === formik.values.email && userInfo.password == formik.values.password ? Navigate("/home"):swal("Please Enter Valid login Details")
+		resetForm()
+		},
+	  });
+	const Navigate = useNavigate()
   return (
 	<div class="container">
 		  <div class="row">
@@ -20,35 +28,53 @@ export default function Login() {
 			  <div class="card mt-4">
 				<div class="card-header">Login</div>
 				<div class="card-body">
-				  <form onSubmit={handleLogin}>
-				  <div>
-					<label for="email" class="form-label">First Email</label>
-					<input
-					onChange={e=> setemail(e.target.value)}
-					  type="text"
-					  class="form-control"
-					  id="email"
-					  placeholder="Enter Your Email"
-					/>
-					  </div>
-				  <div class="mt-2">
-					<label for="password" class="form-label">Password</label>
-					<input
-					onChange={e=> setpassword(e.target.value)}
-					  type="password"
-					  class="form-control"
-					  id="password"
-					  placeholder="Enter Your Password"
-					/>
-				  </div>
-				  <button class="btn btn-primary w-100 mt-3">
-					Login
-				  </button>
-				  <p class="text-center mt-3">
-					Dont Have Account? <Link to="/">Create Account</Link>
-				  </p>
-				  </form>
-				</div>
+				<form onSubmit={formik.handleSubmit} >
+                    <div>
+                      <label htmlFor="">Email</label>
+                      <input type="text"
+                        onChange={formik.handleChange}
+                        value={formik.values.email}
+                        onBlur={formik.handleBlur}
+                        className={
+                          formik.errors.email && formik.touched.email
+                            ? "form-control is-invalid"
+                            : "form-control"
+                        }
+                        id="email"
+                        placeholder="Enter your email"
+                      />
+                      <div className="valid-feedback"></div>
+                      {formik.touched.email && formik.errors.email ? (
+              <div className="invalid-feedback">{formik.errors.email}</div>
+            ) : null}
+                  </div>
+
+                    <div>
+                      <label htmlFor="">Phone</label>
+                      <input type="text"
+                        onChange={formik.handleChange}
+                        value={formik.values.password}
+                        onBlur={formik.handleBlur}
+                        className={
+                          formik.errors.password && formik.touched.password
+                            ? "form-control is-invalid"
+                            : "form-control"
+                        }
+                        id="password"
+                        placeholder="Enter your password"
+                      />
+                      <div className="valid-feedback"></div>
+                      {formik.touched.password && formik.errors.password ? (
+              <div className="invalid-feedback">{formik.errors.password}</div>
+            ) : null}
+                    </div>
+                <br />
+                <button type='submit' className='btn bg-success w-100'>submit</button>
+              </form><br />
+              <p class="text-center">
+						I Don't Have Account? <Link to="/">Register</Link>
+					  </p>
+			  </div>
 			  </div>
 			</div>
 		  </div>
